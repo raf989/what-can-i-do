@@ -13,20 +13,27 @@ const addTaskForm = document.querySelector(ADD_TASK_FORM_CLASS);
 const addTaskInput = document.querySelector(ADD_TASK_INPUT_CLASS);
 const tasksContainer = document.querySelector(TASKS_CONTAINER_CLASS);
 
-const addTask = (task) => {
+const tasks = [
+  {
+    text: 'Завершить тестовое задание',
+  }
+];
+
+
+const renderTask = (task) => {
 	const taskHtmlElement = document.createElement('div');
 	taskHtmlElement.classList.add(TASK_CLASS);
 
 	const taskContent = document.createElement('div');
 	taskContent.classList.add(TASK_CONTENT_CLASS);
-	taskContent.innerText=task;
+	taskContent.innerText = task.text;
 
 	taskHtmlElement.appendChild(taskContent);
 
 	const editTaskInput = document.createElement('input');
 	editTaskInput.classList.add(TASK_TEXT_CLASS);
 	editTaskInput.type = 'text';
-	editTaskInput.value = task;
+	editTaskInput.value = task.text;
 	editTaskInput.setAttribute('readonly', 'readonly');
 
 	taskContent.appendChild(editTaskInput);
@@ -65,6 +72,16 @@ const addTask = (task) => {
 	deleteTaskButton.addEventListener('click', (e) => {
 		tasksContainer.removeChild(taskHtmlElement);
 	});
+
+};
+
+const addTask = (taskText) => {
+  const task = {
+    text: taskText,
+  };
+
+  tasks.push(task);
+  renderTask(task);
 };
 
 
@@ -80,3 +97,5 @@ addTaskForm.addEventListener('submit', (e) => {
 
   addTask(task);
 });
+
+tasks.forEach(renderTask);
