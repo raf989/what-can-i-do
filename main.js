@@ -1,18 +1,3 @@
-const ADD_TASK_FORM_CLASS = '.task__add-form';
-const ADD_TASK_INPUT_CLASS = '.task__add-input';
-const TASKS_CONTAINER_CLASS = '.tasks__container';
-const TASK_CLASS = 'task__item';
-const TASK_CONTENT_CLASS = 'task__content';
-const TASK_TEXT_CLASS = 'task__content-text';
-const TASK_ACTIONS_CLASS = 'task__actions';
-const TASK_ACTION_EDIT_CLASS = 'task__actions-edit';
-const TASK_ACTION_DELETE_CLASS = 'task__actions-delete';
-
-
-const LOCAL_STORAGE_KEYS = {
-  TASKS: 'tasks',
-};
-
 const addTaskForm = document.querySelector(ADD_TASK_FORM_CLASS);
 const addTaskInput = document.querySelector(ADD_TASK_INPUT_CLASS);
 const tasksContainer = document.querySelector(TASKS_CONTAINER_CLASS);
@@ -30,12 +15,57 @@ const savedTasks = loadTasks();
 
 const tasks = savedTasks.length ? savedTasks : [
   {
+    id: 0,
     text: 'Завершить тестовое задание',
   }
 ];
 
+const setEditAction = (btn, actionName) => {
+  btn.innerText = capitalizae(actionName);
+  btn.setAttribute(HTML_ATTRIBUTES.ACTION, actionName);
+};
+
+const ACTIONS = {
+  [ACTION_NAMES.EDIT]: (task) => {
+    const editTaskInput = document.createElement('input');
+    editTaskInput.classList.add(TASK_TEXT_CLASS);
+    editTaskInput.type = 'text';
+    editTaskInput.value = task.text;
+
+    const taskSelector = `.${TASK_CLASS}[${HTML_ATTRIBUTES.ALIAS}="${task.id}"]`;
+    const taskHtmlElement = tasksContainer.querySelector(taskSelector);
+    const taskContent = taskHtmlElement.querySelector(TASK_CONTENT_SELECTOR);
+
+    taskContent.innerText = '';
+
+    taskContent.appendChild(editTaskInput);
+    editTaskInput.focus();
+
+    const editTaskButton = taskHtmlElement.querySelector(TASK_ACTION_EDIT_SELECTOR);
+    setEditAction(editTaskButton, ACTION_NAMES.SAVE);
+  },
+
+  [ACTION_NAMES.SAVE]: (task) => {
+    const taskSelector = `.${TASK_CLASS}[${HTML_ATTRIBUTES.ALIAS}="${task.id}"]`;
+    const taskHtmlElement = tasksContainer.querySelector(taskSelector);
+    const editTaskInput = taskHtmlElement.querySelector(TASK_TEXT_SELECTOR);
+
+    const newTaskText = editTaskInput.value;
+    task.text = newTaskText;
+
+    const taskContent = taskHtmlElement.querySelector(TASK_CONTENT_SELECTOR);
+    taskContent.innerHTML = newTaskText;
+
+    const editTaskButton = taskHtmlElement.querySelector(TASK_ACTION_EDIT_SELECTOR);
+    setEditAction(editTaskButton, ACTION_NAMES.EDIT);
+
+    saveTasks();
+  }
+};
+
 const renderTask = (task) => {
 	const taskHtmlElement = document.createElement('div');
+  taskHtmlElement.setAttribute(HTML_ATTRIBUTES.ALIAS, task.id);
 	taskHtmlElement.classList.add(TASK_CLASS);
 
 	const taskContent = document.createElement('div');
@@ -44,20 +74,12 @@ const renderTask = (task) => {
 
 	taskHtmlElement.appendChild(taskContent);
 
-	const editTaskInput = document.createElement('input');
-	editTaskInput.classList.add(TASK_TEXT_CLASS);
-	editTaskInput.type = 'text';
-	editTaskInput.value = task.text;
-	editTaskInput.setAttribute('readonly', 'readonly');
-
-	taskContent.appendChild(editTaskInput);
-
 	const taskActionsHtmlElement = document.createElement('div');
 	taskActionsHtmlElement.classList.add(TASK_ACTIONS_CLASS);
 
 	const editTaskButton = document.createElement('button');
+  setEditAction(editTaskButton, ACTION_NAMES.EDIT);
 	editTaskButton.classList.add(TASK_ACTION_EDIT_CLASS);
-	editTaskButton.innerText = 'Edit';
 
 	const deleteTaskButton = document.createElement('button');
 	deleteTaskButton.classList.add(TASK_ACTION_DELETE_CLASS);
@@ -73,21 +95,13 @@ const renderTask = (task) => {
 	addTaskInput.value = '';
 
 	editTaskButton.addEventListener('click', (e) => {
-		if (editTaskButton.innerText.toLowerCase() == 'edit') {
-			editTaskButton.innerText = 'Save';
-			editTaskInput.removeAttribute('readonly');
-			editTaskInput.focus();
-		} else {
-			editTaskButton.innerText = 'Edit';
-			editTaskInput.setAttribute('readonly', 'readonly');
-		}
-
-    saveTasks();
+    const actionName = e.target.getAttribute(HTML_ATTRIBUTES.ACTION);
+    const action = ACTIONS[actionName];
+    action?.(task);
 	});
 
 	deleteTaskButton.addEventListener('click', (e) => {
 		tasksContainer.removeChild(taskHtmlElement);
-    saveTasks();
 	});
 
 };
@@ -100,6 +114,7 @@ const saveTasks = () => {
 const addTask = (taskText) => {
   const task = {
     text: taskText,
+    id: Math.random(),
   };
 
   tasks.push(task);
@@ -113,12 +128,9 @@ addTaskForm.addEventListener('submit', (e) => {
       
 	const task = addTaskInput.value;
 	
-	if (!task){
-		alert('Please fill out the task');
-		return;
+	if (task) {
+    addTask(task);
 	}
-
-  addTask(task);
 });
 
 tasks.forEach(renderTask);
