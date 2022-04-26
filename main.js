@@ -1,68 +1,82 @@
-
-const form = document.querySelector("#new-task-form");
-const input = document.querySelector("#new-task-input");
-const list_el = document.querySelector("#tasks");
-    
-form.addEventListener('submit', (e) => {
-	e.preventDefault();
-      
-	const task = input.value;
-	
-	if (!task){
-		alert("Please fill out the task");
-		return;
-	}
+const ADD_TASK_FORM_CLASS = '.task__add-form';
+const ADD_TASK_INPUT_CLASS = '.task__add-input';
+const TASKS_CONTAINER_CLASS = '.tasks__container';
+const TASK_CLASS = 'task__item';
+const TASK_CONTENT_CLASS = 'task__content';
+const TASK_TEXT_CLASS = 'task__content-text';
+const TASK_ACTIONS_CLASS = 'task__actions';
+const TASK_ACTION_EDIT_CLASS = 'task__actions-edit';
+const TASK_ACTION_DELETE_CLASS = 'task__actions-delete';
 
 
-	const task_el = document.createElement('div');
-	task_el.classList.add('task');
+const addTaskForm = document.querySelector(ADD_TASK_FORM_CLASS);
+const addTaskInput = document.querySelector(ADD_TASK_INPUT_CLASS);
+const tasksContainer = document.querySelector(TASKS_CONTAINER_CLASS);
 
-	const task_content_el = document.createElement('div');
-	task_content_el.classList.add('content');
-	task_content_el.innerText=task;
+const addTask = (task) => {
+	const taskHtmlElement = document.createElement('div');
+	taskHtmlElement.classList.add(TASK_CLASS);
 
-	task_el.appendChild(task_content_el);
+	const taskContent = document.createElement('div');
+	taskContent.classList.add(TASK_CONTENT_CLASS);
+	taskContent.innerText=task;
 
-	const task_input_el = document.createElement('input');
-	task_input_el.classList.add('text');
-	task_input_el.type = 'text';
-	task_input_el.value = task;
-	task_input_el.setAttribute('readonly', 'readonly');
+	taskHtmlElement.appendChild(taskContent);
 
-	task_content_el.appendChild(task_input_el);
+	const editTaskInput = document.createElement('input');
+	editTaskInput.classList.add(TASK_TEXT_CLASS);
+	editTaskInput.type = 'text';
+	editTaskInput.value = task;
+	editTaskInput.setAttribute('readonly', 'readonly');
 
-	const task_actions_el = document.createElement('div');
-	task_actions_el.classList.add('actions');
+	taskContent.appendChild(editTaskInput);
 
-	const task_edit_el = document.createElement('button');
-	task_edit_el.classList.add('edit');
-	task_edit_el.innerText = 'Edit';
+	const taskActionsHtmlElement = document.createElement('div');
+	taskActionsHtmlElement.classList.add(TASK_ACTIONS_CLASS);
 
-	const task_delete_el = document.createElement('button');
-	task_delete_el.classList.add('delete');
-	task_delete_el.innerText = 'Delete';
+	const editTaskButton = document.createElement('button');
+	editTaskButton.classList.add(TASK_ACTION_EDIT_CLASS);
+	editTaskButton.innerText = 'Edit';
 
-	task_actions_el.appendChild(task_edit_el);
-	task_actions_el.appendChild(task_delete_el);
+	const deleteTaskButton = document.createElement('button');
+	deleteTaskButton.classList.add(TASK_ACTION_DELETE_CLASS);
+	deleteTaskButton.innerText = 'Delete';
 
-	task_el.appendChild(task_actions_el);
+	taskActionsHtmlElement.appendChild(editTaskButton);
+	taskActionsHtmlElement.appendChild(deleteTaskButton);
 
-	list_el.appendChild(task_el);
+	taskHtmlElement.appendChild(taskActionsHtmlElement);
 
-	input.value = '';
+	tasksContainer.appendChild(taskHtmlElement);
 
-	task_edit_el.addEventListener('click', (e) => {
-		if (task_edit_el.innerText.toLowerCase() == "edit") {
-			task_edit_el.innerText = "Save";
-			task_input_el.removeAttribute("readonly");
-			task_input_el.focus();
+	addTaskInput.value = '';
+
+	editTaskButton.addEventListener('click', (e) => {
+		if (editTaskButton.innerText.toLowerCase() == 'edit') {
+			editTaskButton.innerText = 'Save';
+			editTaskInput.removeAttribute('readonly');
+			editTaskInput.focus();
 		} else {
-			task_edit_el.innerText = "Edit";
-			task_input_el.setAttribute("readonly", "readonly");
+			editTaskButton.innerText = 'Edit';
+			editTaskInput.setAttribute('readonly', 'readonly');
 		}
 	});
 
-	task_delete_el.addEventListener('click', (e) => {
-		list_el.removeChild(task_el);
+	deleteTaskButton.addEventListener('click', (e) => {
+		tasksContainer.removeChild(taskHtmlElement);
 	});
+};
+
+
+addTaskForm.addEventListener('submit', (e) => {
+	e.preventDefault();
+      
+	const task = addTaskInput.value;
+	
+	if (!task){
+		alert('Please fill out the task');
+		return;
+	}
+
+  addTask(task);
 });
