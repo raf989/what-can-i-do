@@ -76,7 +76,7 @@ const deleteTask = (task) => {
 };
 
 const createTaskContent = (task) => {
-	const taskContent = document.createElement('div');
+	const taskContent = document.createElement('span');
 	taskContent.classList.add(TASK_CONTENT_CLASS);
 	taskContent.innerText = task.text;
   return taskContent;
