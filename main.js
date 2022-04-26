@@ -9,16 +9,30 @@ const TASK_ACTION_EDIT_CLASS = 'task__actions-edit';
 const TASK_ACTION_DELETE_CLASS = 'task__actions-delete';
 
 
+const LOCAL_STORAGE_KEYS = {
+  TASKS: 'tasks',
+};
+
 const addTaskForm = document.querySelector(ADD_TASK_FORM_CLASS);
 const addTaskInput = document.querySelector(ADD_TASK_INPUT_CLASS);
 const tasksContainer = document.querySelector(TASKS_CONTAINER_CLASS);
 
-const tasks = [
+const loadTasks = () => {
+  const jsonTasks = localStorage.getItem(LOCAL_STORAGE_KEYS.TASKS);
+  if (jsonTasks) {
+    return JSON.parse(jsonTasks);
+  }
+
+  return [];
+}
+
+const savedTasks = loadTasks();
+
+const tasks = savedTasks.length ? savedTasks : [
   {
     text: 'Завершить тестовое задание',
   }
 ];
-
 
 const renderTask = (task) => {
 	const taskHtmlElement = document.createElement('div');
@@ -67,12 +81,20 @@ const renderTask = (task) => {
 			editTaskButton.innerText = 'Edit';
 			editTaskInput.setAttribute('readonly', 'readonly');
 		}
+
+    saveTasks();
 	});
 
 	deleteTaskButton.addEventListener('click', (e) => {
 		tasksContainer.removeChild(taskHtmlElement);
+    saveTasks();
 	});
 
+};
+
+const saveTasks = () => {
+  const jsonTasks = JSON.stringify(tasks);
+  localStorage.setItem(LOCAL_STORAGE_KEYS.TASKS, jsonTasks);
 };
 
 const addTask = (taskText) => {
@@ -82,6 +104,7 @@ const addTask = (taskText) => {
 
   tasks.push(task);
   renderTask(task);
+  saveTasks();
 };
 
 
