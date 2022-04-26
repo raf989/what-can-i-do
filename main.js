@@ -25,6 +25,11 @@ const setEditAction = (btn, actionName) => {
   btn.setAttribute(HTML_ATTRIBUTES.ACTION, actionName);
 };
 
+const getTaskHtmlElement = (id) => {
+  const taskSelector = `.${TASK_CLASS}[${HTML_ATTRIBUTES.ALIAS}="${id}"]`;
+  return tasksContainer.querySelector(taskSelector);
+};
+
 const ACTIONS = {
   [ACTION_NAMES.EDIT]: (task) => {
     const editTaskInput = document.createElement('input');
@@ -32,8 +37,7 @@ const ACTIONS = {
     editTaskInput.type = 'text';
     editTaskInput.value = task.text;
 
-    const taskSelector = `.${TASK_CLASS}[${HTML_ATTRIBUTES.ALIAS}="${task.id}"]`;
-    const taskHtmlElement = tasksContainer.querySelector(taskSelector);
+    const taskHtmlElement = getTaskHtmlElement(task.id);
     const taskContent = taskHtmlElement.querySelector(TASK_CONTENT_SELECTOR);
 
     taskContent.innerText = '';
@@ -46,8 +50,7 @@ const ACTIONS = {
   },
 
   [ACTION_NAMES.SAVE]: (task) => {
-    const taskSelector = `.${TASK_CLASS}[${HTML_ATTRIBUTES.ALIAS}="${task.id}"]`;
-    const taskHtmlElement = tasksContainer.querySelector(taskSelector);
+    const taskHtmlElement = getTaskHtmlElement(task.id);
     const editTaskInput = taskHtmlElement.querySelector(TASK_TEXT_SELECTOR);
 
     const newTaskText = editTaskInput.value;
@@ -61,6 +64,15 @@ const ACTIONS = {
 
     saveTasks();
   }
+};
+
+const deleteTask = (task) => {
+  const idx = tasks.findIndex(({ id }) => id === task.id);
+  tasks.splice(idx, 1);
+
+  const taskHtmlElement = getTaskHtmlElement(task.id);
+  taskHtmlElement.remove();
+  saveTasks();
 };
 
 const renderTask = (task) => {
@@ -83,7 +95,7 @@ const renderTask = (task) => {
 
 	const deleteTaskButton = document.createElement('button');
 	deleteTaskButton.classList.add(TASK_ACTION_DELETE_CLASS);
-	deleteTaskButton.innerText = 'Delete';
+	deleteTaskButton.innerText = capitalizae(ACTION_NAMES.DELETE);
 
 	taskActionsHtmlElement.appendChild(editTaskButton);
 	taskActionsHtmlElement.appendChild(deleteTaskButton);
@@ -100,8 +112,8 @@ const renderTask = (task) => {
     action?.(task);
 	});
 
-	deleteTaskButton.addEventListener('click', (e) => {
-		tasksContainer.removeChild(taskHtmlElement);
+	deleteTaskButton.addEventListener('click', () => {
+    deleteTask(task);
 	});
 
 };
@@ -125,9 +137,9 @@ const addTask = (taskText) => {
 
 addTaskForm.addEventListener('submit', (e) => {
 	e.preventDefault();
-      
+
 	const task = addTaskInput.value;
-	
+
 	if (task) {
     addTask(task);
 	}

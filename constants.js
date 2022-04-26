@@ -25,4 +25,5 @@ const HTML_ATTRIBUTES = {
 const ACTION_NAMES = {
   EDIT: 'edit',
   SAVE: 'save',
+  DELETE: 'delete',
 };
