@@ -9,7 +9,7 @@ const loadTasks = () => {
   }
 
   return [];
-}
+};
 
 const savedTasks = loadTasks();
 
@@ -63,7 +63,7 @@ const ACTIONS = {
     setEditAction(editTaskButton, ACTION_NAMES.EDIT);
 
     saveTasks();
-  }
+  },
 };
 
 const deleteTask = (task) => {
@@ -75,36 +75,23 @@ const deleteTask = (task) => {
   saveTasks();
 };
 
-const renderTask = (task) => {
-	const taskHtmlElement = document.createElement('div');
-  taskHtmlElement.setAttribute(HTML_ATTRIBUTES.ALIAS, task.id);
-	taskHtmlElement.classList.add(TASK_CLASS);
-
+const createTaskContent = (task) => {
 	const taskContent = document.createElement('div');
 	taskContent.classList.add(TASK_CONTENT_CLASS);
 	taskContent.innerText = task.text;
+  return taskContent;
+};
 
+const renderTaskContent = (taskHtmlElement, task) => {
+  const taskContent = createTaskContent(task);
 	taskHtmlElement.appendChild(taskContent);
+  return taskContent;
+};
 
-	const taskActionsHtmlElement = document.createElement('div');
-	taskActionsHtmlElement.classList.add(TASK_ACTIONS_CLASS);
-
+const createTaskEditButton = (task) => {
 	const editTaskButton = document.createElement('button');
   setEditAction(editTaskButton, ACTION_NAMES.EDIT);
 	editTaskButton.classList.add(TASK_ACTION_EDIT_CLASS);
-
-	const deleteTaskButton = document.createElement('button');
-	deleteTaskButton.classList.add(TASK_ACTION_DELETE_CLASS);
-	deleteTaskButton.innerText = capitalizae(ACTION_NAMES.DELETE);
-
-	taskActionsHtmlElement.appendChild(editTaskButton);
-	taskActionsHtmlElement.appendChild(deleteTaskButton);
-
-	taskHtmlElement.appendChild(taskActionsHtmlElement);
-
-	tasksContainer.appendChild(taskHtmlElement);
-
-	addTaskInput.value = '';
 
 	editTaskButton.addEventListener('click', (e) => {
     const actionName = e.target.getAttribute(HTML_ATTRIBUTES.ACTION);
@@ -112,10 +99,59 @@ const renderTask = (task) => {
     action?.(task);
 	});
 
+  return editTaskButton;
+};
+
+const renderTaskEditButton = (taskActionsElement, task) => {
+  const editTaskButton = createTaskEditButton(task);
+	taskActionsElement.appendChild(editTaskButton);
+};
+
+const createTaskDeleteButton = (task) => {
+	const deleteTaskButton = document.createElement('button');
+	deleteTaskButton.classList.add(TASK_ACTION_DELETE_CLASS);
+	deleteTaskButton.innerText = capitalizae(ACTION_NAMES.DELETE);
+
 	deleteTaskButton.addEventListener('click', () => {
     deleteTask(task);
 	});
 
+  return deleteTaskButton;
+};
+
+const renderTaskDeleteButton = (taskActionsElement, task) => {
+  const deleteTaskButton = createTaskDeleteButton(task);
+	taskActionsElement.appendChild(deleteTaskButton);
+};
+
+const createTaskActionsElement = (task) => {
+	const taskActionsHtmlElement = document.createElement('div');
+	taskActionsHtmlElement.classList.add(TASK_ACTIONS_CLASS);
+  renderTaskEditButton(taskActionsHtmlElement, task);
+  renderTaskDeleteButton(taskActionsHtmlElement, task);
+
+  return taskActionsHtmlElement;
+};
+
+const renderTaskActionsElement = (taskContainer, task) => {
+  const taskActionsElement = createTaskActionsElement(task);
+  taskContainer.appendChild(taskActionsElement);
+};
+
+const createTaskHtmlElement = (task) => {
+	const taskHtmlElement = document.createElement('div');
+  taskHtmlElement.setAttribute(HTML_ATTRIBUTES.ALIAS, task.id);
+	taskHtmlElement.classList.add(TASK_CLASS);
+  renderTaskContent(taskHtmlElement, task);
+  renderTaskActionsElement(taskHtmlElement, task);
+
+  return taskHtmlElement;
+}
+
+const renderTask = (task) => {
+	const taskHtmlElement = createTaskHtmlElement(task);
+	tasksContainer.appendChild(taskHtmlElement);
+	addTaskInput.value = '';
 };
 
 const saveTasks = () => {
